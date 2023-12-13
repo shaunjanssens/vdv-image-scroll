@@ -1,14 +1,14 @@
 import styled, {css} from "styled-components";
-import React, {useEffect, useRef, useState, UIEvent, useCallback} from "react";
+import React, {useEffect, useRef, useState, useCallback} from "react";
 
-const imageList = [
-    'https://images.unsplash.com/photo-1458312732998-763933ed4896',
-    'https://images.unsplash.com/photo-1515031245064-22453e134337',
-    'https://images.unsplash.com/photo-1542850802-8a047a726d4e',
-    'https://images.unsplash.com/photo-1540365118882-946449a2ce17',
-    'https://images.unsplash.com/photo-1541772995526-c5bcdbd5307f',
-    'https://images.unsplash.com/photo-1553955023-75b1347c6c0f',
-    'https://images.unsplash.com/photo-1593929999438-ce13d4544a1f'
+const mediaList = [
+    {type: 'image', src: '/images/1.png'},
+    {type: 'video', src: '/images/video.png', video: '/images/video.mp4'},
+    {type: 'image', src: '/images/2.png'},
+    {type: 'image', src: '/images/3.png'},
+    {type: 'image', src: '/images/4.png'},
+    {type: 'image', src: '/images/5.png'},
+    {type: 'image', src: '/images/6.png'},
 ]
 
 const thumbnailsHeight = "20vh";
@@ -65,7 +65,7 @@ const Images = styled.div`
 const Image = styled.div`
   scroll-snap-align: start;
   
-  img {
+  img, video {
     width: 100%;
     height: 100vh;
     object-fit: cover;
@@ -74,7 +74,7 @@ const Image = styled.div`
 `
 
 const ImageScroll = () => {
-    const imageListRef = useRef<HTMLDivElement | null>(null)
+    const mediaListRef = useRef<HTMLDivElement | null>(null)
     const thumbnailRef = useRef<Array<HTMLDivElement | null>>([])
     const imageRef = useRef<Array<HTMLDivElement | null>>([])
 
@@ -86,15 +86,15 @@ const ImageScroll = () => {
     }, [])
 
     useEffect(() => {
-        imageListRef.current?.addEventListener('mouseenter', (event: any) => {
+        mediaListRef.current?.addEventListener('mouseenter', () => {
            setIsHoverImageList(true)
         })
 
-        imageListRef.current?.addEventListener('mouseleave', (event: any) => {
+        mediaListRef.current?.addEventListener('mouseleave', () => {
             setIsHoverImageList(false)
         })
 
-        imageListRef.current?.addEventListener("scroll", (event: any) => {
+        mediaListRef.current?.addEventListener("scroll", (event: any) => {
             const {scrollTop, clientHeight} = event.target
             const index = Math.ceil(scrollTop / clientHeight)
             setSelectedImage(index)
@@ -109,24 +109,30 @@ const ImageScroll = () => {
         <>
         <Container>
             <Thumbnails>
-                {imageList.map((image, index) => (
+                {mediaList.map(({type, src, video}, index) => (
                     <Thumbnail
-                        key={`${image}-thumb`}
+                        key={`${src}-thumb`}
                         ref={ref => thumbnailRef.current[index] = ref}
                         isActive={index === selectedImage}
                         onClick={() => handleClickThumbnail(index)}
                     >
-                        <img src={`${image}?q=80&w=300&auto=format&fit=crop`} alt=""/>
+                        <img src={src} alt=""/>
                     </Thumbnail>
                 ))}
             </Thumbnails>
-            <Images ref={imageListRef}>
-                {imageList.map((image, index) => (
+            <Images ref={mediaListRef}>
+                {mediaList.map(({type, src, video}, index) => (
                     <Image
-                        key={image}
+                        key={src}
                         ref={ref => imageRef.current[index] = ref}
                     >
-                        <img src={`${image}?q=80&w=800&auto=format&fit=crop`} alt=""/>
+                        {type === 'image' && <img src={src} alt=""/>}
+                        {type === 'video' && (
+                            <video autoPlay muted loop>
+                                <source src={video} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        )}
                     </Image>
                 ))}
             </Images>
